@@ -412,6 +412,32 @@ namespace BookSwap.Controllers
                 .OrderByDescending(b => b.CreatedAt)
                 .ToListAsync();
 
+
+            var bookIds = books.Select(b => b.Id).ToList();
+
+            var lockedSwaps = await _context.SwapRequests
+                .Where(s =>
+                    (s.Status == "Accepted" || s.Status == "Completed") &&
+                    (bookIds.Contains(s.RequestedBookId) ||
+                     bookIds.Contains(s.OfferedBookId)))
+                .Select(s => new
+                {
+                    s.RequestedBookId,
+                    s.OfferedBookId,
+                    s.Status
+                })
+                .ToListAsync();
+
+            var bookStatuses = new Dictionary<int, string>();
+
+            foreach (var swap in lockedSwaps)
+            {
+                bookStatuses[swap.RequestedBookId] = swap.Status;
+                bookStatuses[swap.OfferedBookId] = swap.Status;
+            }
+
+            ViewBag.BookStatuses = bookStatuses;
+
             return View(books);
         }
 
@@ -430,6 +456,21 @@ namespace BookSwap.Controllers
 
             if (book.OwnerId != userId)
                 return Forbid();
+
+
+            bool isLocked = await _context.SwapRequests
+                .AnyAsync(s =>
+                    (s.Status == "Accepted" || s.Status == "Completed") &&
+                    (s.RequestedBookId == book.Id ||
+                     s.OfferedBookId == book.Id));
+
+            if (isLocked)
+            {
+                TempData["Error"] =
+                    "This book cannot be changed because it is part of an accepted or completed swap.";
+
+                return RedirectToAction(nameof(MyLibrary));
+            }
 
             book.IsAvailable = !book.IsAvailable;
 

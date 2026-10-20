@@ -1,0 +1,73 @@
+﻿
+@model IEnumerable<BookSwap.Models.Book>
+@{
+    ViewData["Title"] = "Request Swap";
+    var requestedBook = (BookSwap.Models.Book)ViewBag.RequestedBook;
+}
+
+<div class="container mt-4">
+    <h2>Request a Book Swap</h2>
+
+    <div class="card p-3 mb-4">
+        <h5>You want to receive:</h5>
+        <h4>@requestedBook.Title</h4>
+        <p class="text-muted">@requestedBook.Author</p>
+    </div>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-warning">
+            You need to add an available book
+            to your library before requesting a swap.
+        </div>
+
+        <a asp-controller="Books"
+           asp-action="Create"
+           class="btn btn-primary">
+            Add Book
+        </a>
+    }
+    else
+    {
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+
+            <input type="hidden"
+                   name="requestedBookId"
+                   value="@requestedBook.Id" />
+
+            <div class="mb-3">
+                <label class="form-label">
+                    Choose a book to offer:
+                </label>
+
+                <select name="offeredBookId"
+                        class="form-select"
+                        required>
+                    @foreach (var book in Model)
+                    {
+                        <option value="@book.Id">
+                            @book.Title — @book.Author
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                Send Swap Request
+            </button>
+        </form>
+    }
+
+    <a asp-controller="Books"
+       asp-action="Details"
+       asp-route-id="@requestedBook.Id"
+       class="btn btn-outline-secondary mt-3">
+        Back to Book
+    </a>
+</div>

@@ -3,6 +3,9 @@
 
 @{
     ViewData["Title"] = "My Library";
+var bookStatuses = ViewBag.BookStatuses
+    as Dictionary<int, string>
+    ?? new Dictionary<int, string>();
 }
 
 <div class="container mt-4">
@@ -14,6 +17,12 @@
             + Add Book
         </a>
     </div>
+    @if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
 
     <div class="mb-4 d-flex gap-2">
         <a asp-action="MyLibrary"
@@ -51,7 +60,8 @@
     <div class="row">
         @foreach (var book in Model)
         {
-            
+            bookStatuses.TryGetValue(book.Id, out var swapStatus);
+
 <div class="col-md-4 mb-4 book-item"
      data-title="@book.Title"
      data-author="@book.Author">
@@ -71,56 +81,78 @@
                         <h5>@book.Title</h5>
                         <p class="text-muted">@book.Author</p>
 
-                        @if (book.IsAvailable)
-                        {
-                            <span class="badge bg-success mb-3">
-                                Available
-                            </span>
-                        }
-                        else
-                        {
-                            <span class="badge bg-secondary mb-3">
-                                Hidden
-                            </span>
-                        }
+                       
+@if (swapStatus == "Accepted")
+{
+    <span class="badge bg-warning text-dark mb-3">
+        Reserved
+    </span>
+}
+else if (swapStatus == "Completed")
+{
+    <span class="badge bg-primary mb-3">
+        Exchanged
+    </span>
+}
+else if (book.IsAvailable)
+{
+    <span class="badge bg-success mb-3">
+        Available
+    </span>
+}
+else
+{
+    <span class="badge bg-secondary mb-3">
+        Hidden
+    </span>
+}
 
-                        <div class="d-flex gap-2 flex-wrap">
-                            <a asp-action="Details"
-   asp-route-id="@book.Id"
-   asp-route-from="library"
-   class="btn btn-outline-primary btn-sm">
-    View
-</a>
 
-                            <a asp-action="Edit"
-                               asp-route-id="@book.Id"
-                               class="btn btn-warning btn-sm">
-                                Edit
-                            </a>
+                        
+<div class="d-flex gap-2 flex-wrap">
 
-                            <form asp-action="ToggleAvailability"
-                                  asp-route-id="@book.Id"
-                                  method="post">
-                                @Html.AntiForgeryToken()
+    <a asp-action="Details"
+       asp-route-id="@book.Id"
+       asp-route-from="library"
+       class="btn btn-outline-primary btn-sm">
+        View
+    </a>
 
-                                <button type="submit"
-                                        class="btn btn-outline-secondary btn-sm">
-                                    @(book.IsAvailable ? "Hide" : "Show")
-                                </button>
-                            </form>
+    @if (swapStatus != "Accepted" &&
+         swapStatus != "Completed")
+    {
+        <a asp-action="Edit"
+           asp-route-id="@book.Id"
+           class="btn btn-warning btn-sm">
+            Edit
+        </a>
 
-                            <form asp-action="Delete"
-                                  asp-route-id="@book.Id"
-                                  method="post"
-                                  onsubmit="return confirm('Delete this book?');">
-                                @Html.AntiForgeryToken()
+        <form asp-action="ToggleAvailability"
+              asp-route-id="@book.Id"
+              method="post">
+            @Html.AntiForgeryToken()
 
-                                <button type="submit"
-                                        class="btn btn-danger btn-sm">
-                                    Delete
-                                </button>
-                            </form>
-                        </div>
+            <button type="submit"
+                    class="btn btn-outline-secondary btn-sm">
+                @(book.IsAvailable ? "Hide" : "Show")
+            </button>
+        </form>
+
+        <form asp-action="Delete"
+              asp-route-id="@book.Id"
+              method="post"
+              onsubmit="return confirm('Delete this book?');">
+            @Html.AntiForgeryToken()
+
+            <button type="submit"
+                    class="btn btn-danger btn-sm">
+                Delete
+            </button>
+        </form>
+    }
+
+</div>
+
                     </div>
                 </div>
             </div>

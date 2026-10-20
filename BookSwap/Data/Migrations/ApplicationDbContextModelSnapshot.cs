@@ -93,6 +93,57 @@ namespace BookSwap.Data.Migrations
                     b.ToTable("Books");
                 });
 
+            modelBuilder.Entity("BookSwap.Models.SwapRequest", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("timestamp with time zone");
+
+                    b.Property<int>("OfferedBookId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("ReceiverConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("ReceiverId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<int>("RequestedBookId")
+                        .HasColumnType("integer");
+
+                    b.Property<bool>("SenderConfirmed")
+                        .HasColumnType("boolean");
+
+                    b.Property<string>("SenderId")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("text");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("OfferedBookId");
+
+                    b.HasIndex("ReceiverId");
+
+                    b.HasIndex("RequestedBookId");
+
+                    b.HasIndex("SenderId");
+
+                    b.ToTable("SwapRequests");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
                 {
                     b.Property<string>("Id")
@@ -302,6 +353,41 @@ namespace BookSwap.Data.Migrations
                         .IsRequired();
 
                     b.Navigation("Owner");
+                });
+
+            modelBuilder.Entity("BookSwap.Models.SwapRequest", b =>
+                {
+                    b.HasOne("BookSwap.Models.Book", "OfferedBook")
+                        .WithMany()
+                        .HasForeignKey("OfferedBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Receiver")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("BookSwap.Models.Book", "RequestedBook")
+                        .WithMany()
+                        .HasForeignKey("RequestedBookId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser", "Sender")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("OfferedBook");
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("RequestedBook");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>

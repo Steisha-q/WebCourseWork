@@ -1,0 +1,120 @@
+﻿
+@model IEnumerable<BookSwap.Models.SwapRequest>
+
+@{
+    ViewData["Title"] = "Sent Requests";
+}
+
+<div class="container mt-4">
+    <h2 class="mb-4">Sent Swap Requests</h2>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @foreach (var request in Model)
+    {
+        <div class="card p-4 mb-3 shadow-sm">
+            <h5>Requested: @request.RequestedBook.Title</h5>
+
+            <p>
+                <strong>Offered:</strong>
+                @request.OfferedBook.Title
+            </p>
+
+            <p>
+                <strong>Status:</strong>
+
+                @if (request.Status == "Pending")
+                {
+                    <span class="badge bg-warning text-dark">
+                        Pending
+                    </span>
+                }
+                else if (request.Status == "Accepted")
+                {
+                    <span class="badge bg-success">
+                        Accepted
+                    </span>
+                }
+                else if (request.Status == "Declined")
+                {
+                    <span class="badge bg-danger">
+                        Declined
+                    </span>
+                }
+                else if (request.Status == "Completed")
+{
+    <span class="badge bg-primary">
+        Completed
+    </span>
+}
+else
+{
+    <span class="badge bg-secondary">
+        @request.Status
+    </span>
+}
+            </p>
+
+            @if (request.Status == "Pending")
+            {
+                <form asp-action="Cancel"
+                      asp-route-id="@request.Id"
+                      method="post">
+                    @Html.AntiForgeryToken()
+
+                    <button type="submit"
+                            class="btn btn-outline-danger">
+                        Cancel Request
+                    </button>
+                </form>
+            }
+            
+@if (request.Status == "Accepted")
+{
+    if (!request.SenderConfirmed)
+    {
+        <form asp-action="Confirm"
+              asp-route-id="@request.Id"
+              method="post">
+            @Html.AntiForgeryToken()
+
+            <button type="submit"
+                    class="btn btn-success">
+                Confirm Swap Completion
+            </button>
+        </form>
+    }
+    else
+    {
+        <div class="alert alert-info mt-2">
+            You confirmed this swap.
+            Waiting for the other user.
+        </div>
+    }
+}
+
+@if (request.Status == "Completed")
+{
+    <div class="alert alert-success mt-2">
+        Swap completed successfully!
+    </div>
+}
+
+        </div>
+    }
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <h4>No sent requests</h4>
+            <p class="text-muted">
+                You haven't sent any swap requests yet.
+            </p>
+        </div>
+    }
+</div>

@@ -32,6 +32,15 @@
     @(Model.Owner?.UserName ?? "Unknown user")
 </p>
     <p><strong>Description:</strong> @Model.Description</p>
+    @if (!isOwner && Model.IsAvailable)
+{
+    <a asp-controller="SwapRequests"
+       asp-action="Create"
+       asp-route-bookId="@Model.Id"
+       class="btn btn-success mb-3">
+        Request Swap
+    </a>
+}
 
     @if (fromLibrary && isOwner)
     {
