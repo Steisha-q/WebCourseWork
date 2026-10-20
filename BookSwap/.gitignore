@@ -1,0 +1,15 @@
+
+.vs/
+**/bin/
+**/obj/
+*.user
+*.suo
+
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/secrets.json
+
+.env
+.env.*
+
+**/wwwroot/images/books/*

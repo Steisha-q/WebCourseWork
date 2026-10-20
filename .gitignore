@@ -1,0 +1,16 @@
+# Visual Studio
+.vs/
+**/bin/
+**/obj/
+*.user
+*.suo
+
+# Local settings and secrets
+**/appsettings.Development.json
+**/appsettings.Local.json
+**/secrets.json
+.env
+.env.*
+
+# Uploaded book covers
+**/wwwroot/images/books/*

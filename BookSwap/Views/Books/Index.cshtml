@@ -1,0 +1,161 @@
+﻿
+@model IEnumerable<BookSwap.Models.Book>
+
+@{
+    ViewData["Title"] = "Book Catalog";
+}
+
+<div class="container mt-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Discover Books</h2>
+
+        <a asp-action="Create" class="btn btn-primary">
+            + Add Book
+        </a>
+    </div>
+
+    <form method="get" asp-action="Index"
+          class="card p-4 mb-4 shadow-sm">
+
+        <div class="row g-3">
+
+            <div class="col-md-6">
+                <label class="form-label">Search</label>
+                <input type="text"
+                       name="search"
+                       value="@ViewBag.Search"
+                       class="form-control"
+                       placeholder="Search by title or author..." />
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">Genre</label>
+                <select name="genre" class="form-select">
+                    <option value="">All Genres</option>
+
+                    @foreach (var genre in ViewBag.Genres)
+                    {
+                        <option value="@genre"
+                                selected="@(ViewBag.Genre == genre)">
+                            @genre
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-3">
+                <label class="form-label">City</label>
+                <select name="city" class="form-select">
+                    <option value="">All Cities</option>
+
+                    @foreach (var city in ViewBag.Cities)
+                    {
+                        <option value="@city"
+                                selected="@(ViewBag.City == city)">
+                            @city
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Condition</label>
+                <select name="condition" class="form-select">
+                    <option value="">All Conditions</option>
+                    <option value="New"
+                            selected="@(ViewBag.Condition == "New")">New</option>
+                    <option value="Like new"
+                            selected="@(ViewBag.Condition == "Like new")">Like new</option>
+                    <option value="Good"
+                            selected="@(ViewBag.Condition == "Good")">Good</option>
+                    <option value="Worn"
+                            selected="@(ViewBag.Condition == "Worn")">Worn</option>
+                    <option value="Damaged"
+                            selected="@(ViewBag.Condition == "Damaged")">Damaged</option>
+                </select>
+            </div>
+
+            <div class="col-md-4">
+                <label class="form-label">Sort By</label>
+                <select name="sort" class="form-select">
+                    <option value="newest"
+                            selected="@(ViewBag.Sort == "newest")">Newest First</option>
+                    <option value="oldest"
+                            selected="@(ViewBag.Sort == "oldest")">Oldest First</option>
+                    <option value="title"
+                            selected="@(ViewBag.Sort == "title")">Title A-Z</option>
+                    <option value="author"
+                            selected="@(ViewBag.Sort == "author")">Author A-Z</option>
+                </select>
+            </div>
+
+            <div class="col-md-4 d-flex align-items-end gap-2">
+                <button type="submit"
+                        class="btn btn-primary w-100">
+                    Apply Filters
+                </button>
+
+                <a asp-action="Index"
+                   class="btn btn-outline-secondary">
+                    Reset
+                </a>
+            </div>
+
+        </div>
+    </form>
+
+    <p class="text-muted">
+        Found @Model.Count() books
+    </p>
+
+    <div class="row">
+        @foreach (var book in Model)
+        {
+            <div class="col-md-4 mb-4">
+                <div class="card h-100 shadow-sm">
+
+                    @if (!string.IsNullOrEmpty(book.CoverImageUrl))
+                    {
+                        <img src="@book.CoverImageUrl"
+                             class="card-img-top"
+                             style="height:260px;object-fit:contain"
+                             alt="@book.Title" />
+                    }
+
+                    <div class="card-body">
+                        <h5 class="card-title">@book.Title</h5>
+
+                        <p class="text-muted">@book.Author</p>
+
+                        <p><strong>Genre:</strong> @book.Genre</p>
+                        <p><strong>City:</strong> @book.City</p>
+                        <p><strong>Condition:</strong> @book.Condition</p>
+                        <p>
+    <strong>Added by:</strong>
+    @(book.Owner?.UserName ?? "Unknown user")
+</p>
+
+                        <a asp-action="Details"
+                           asp-route-id="@book.Id"
+                           class="btn btn-outline-primary">
+                            View Details
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="text-center py-5">
+            <h4>No books found</h4>
+            <p class="text-muted">
+                Try changing your search or filters.
+            </p>
+        </div>
+    }
+
+</div>

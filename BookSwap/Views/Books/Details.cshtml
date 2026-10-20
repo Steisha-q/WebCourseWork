@@ -1,0 +1,75 @@
+﻿
+@model BookSwap.Models.Book
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Book Details";
+
+    var isOwner = User.FindFirstValue(
+        ClaimTypes.NameIdentifier) == Model.OwnerId;
+
+    var fromLibrary = Context.Request.Query["from"] == "library";
+}
+
+<div class="container mt-4">
+    <h2>@Model.Title</h2>
+    <h5 class="text-muted">@Model.Author</h5>
+
+    @if (!string.IsNullOrEmpty(Model.CoverImageUrl))
+    {
+        <img src="@Model.CoverImageUrl"
+             alt="@Model.Title"
+             style="max-height:350px;max-width:100%"
+             class="my-3" />
+    }
+
+    <p><strong>Genre:</strong> @Model.Genre</p>
+    <p><strong>Year:</strong> @Model.PublicationYear</p>
+    <p><strong>Condition:</strong> @Model.Condition</p>
+    <p><strong>City:</strong> @Model.City</p>
+    <p>
+    <strong>Added by:</strong>
+    @(Model.Owner?.UserName ?? "Unknown user")
+</p>
+    <p><strong>Description:</strong> @Model.Description</p>
+
+    @if (fromLibrary && isOwner)
+    {
+        <div class="mb-3">
+            <a asp-action="Edit"
+               asp-route-id="@Model.Id"
+               class="btn btn-warning">
+                Edit
+            </a>
+
+            <form asp-action="Delete"
+                  asp-route-id="@Model.Id"
+                  method="post"
+                  class="d-inline"
+                  onsubmit="return confirm('Delete this book?');">
+
+                @Html.AntiForgeryToken()
+
+                <button type="submit"
+                        class="btn btn-danger">
+                    Delete
+                </button>
+            </form>
+        </div>
+    }
+
+    @if (fromLibrary && isOwner)
+    {
+        <a asp-action="MyLibrary"
+           class="btn btn-secondary">
+            Back to My Library
+        </a>
+    }
+    else
+    {
+        <a asp-action="Index"
+           class="btn btn-secondary">
+            Back to Catalog
+        </a>
+    }
+</div>
