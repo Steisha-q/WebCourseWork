@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -58,6 +58,17 @@
            asp-controller="SwapRequests"
            asp-action="Incoming">
             Incoming Requests
+        </a>
+    </li>
+}
+@if (User.IsInRole("Admin"))
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark fw-semibold"
+           asp-area="Admin"
+           asp-controller="Admin"
+           asp-action="Dashboard">
+            ⚙ Admin Panel
         </a>
     </li>
 }

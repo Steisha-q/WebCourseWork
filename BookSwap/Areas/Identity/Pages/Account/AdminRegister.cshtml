@@ -1,0 +1,231 @@
+@page
+@model BookSwap.Areas.Identity.Pages.Account.AdminRegisterModel
+@{
+    ViewData["Title"] = "Admin Registration";
+    Layout = "/Views/Shared/_Layout.cshtml";
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <style>
+        .admin-register-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, #0f0c29, #302b63, #24243e);
+            padding: 2rem 1rem;
+        }
+
+        .admin-register-card {
+            background: rgba(255,255,255,0.05);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255,255,255,0.12);
+            border-radius: 20px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 460px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            color: #fff;
+        }
+
+        .admin-register-card h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            margin-bottom: 0.25rem;
+            background: linear-gradient(90deg, #a78bfa, #60a5fa);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .admin-register-card .subtitle {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.875rem;
+            margin-bottom: 2rem;
+        }
+
+        .form-label-dark {
+            color: rgba(255,255,255,0.75);
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-control-dark {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 10px;
+            color: #fff;
+            padding: 0.65rem 1rem;
+            transition: border-color 0.2s, box-shadow 0.2s;
+            width: 100%;
+        }
+
+        .form-control-dark:focus {
+            outline: none;
+            border-color: #a78bfa;
+            box-shadow: 0 0 0 3px rgba(167,139,250,0.2);
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .form-control-dark::placeholder {
+            color: rgba(255,255,255,0.3);
+        }
+
+        .key-input-wrapper {
+            position: relative;
+        }
+
+        .key-icon {
+            position: absolute;
+            left: 0.9rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a78bfa;
+            font-size: 1rem;
+        }
+
+        .form-control-dark.with-icon {
+            padding-left: 2.5rem;
+        }
+
+        .btn-admin {
+            background: linear-gradient(135deg, #7c3aed, #3b82f6);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 1rem;
+            padding: 0.75rem;
+            width: 100%;
+            cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+            margin-top: 0.5rem;
+        }
+
+        .btn-admin:hover {
+            opacity: 0.9;
+            transform: translateY(-1px);
+        }
+
+        .btn-admin:active {
+            transform: translateY(0);
+        }
+
+        .admin-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.4rem;
+            background: rgba(167,139,250,0.15);
+            border: 1px solid rgba(167,139,250,0.3);
+            border-radius: 50px;
+            padding: 0.3rem 0.9rem;
+            font-size: 0.75rem;
+            color: #c4b5fd;
+            margin-bottom: 1.25rem;
+        }
+
+        .text-danger-light {
+            color: #fca5a5;
+            font-size: 0.8rem;
+        }
+
+        .back-link {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.8rem;
+            text-decoration: none;
+            display: block;
+            text-align: center;
+            margin-top: 1.25rem;
+            transition: color 0.2s;
+        }
+
+        .back-link:hover {
+            color: rgba(255,255,255,0.75);
+        }
+
+        .validation-summary-errors ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .validation-summary-errors {
+            background: rgba(239,68,68,0.1);
+            border: 1px solid rgba(239,68,68,0.3);
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1rem;
+            color: #fca5a5;
+            font-size: 0.85rem;
+        }
+
+        .mb-form {
+            margin-bottom: 1.1rem;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+        }
+
+        header, footer {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+<div class="admin-register-wrapper">
+    <div class="admin-register-card">
+        <div class="admin-badge">
+            🛡 Restricted Access
+        </div>
+        <h1>Admin Registration</h1>
+        <p class="subtitle">Only authorised personnel with an invite key can register as admin.</p>
+
+        <form method="post">
+            <div asp-validation-summary="ModelOnly" class="validation-summary-errors"></div>
+
+            <div class="mb-form">
+                <label asp-for="Input.Email" class="form-label-dark">Email</label>
+                <input asp-for="Input.Email" class="form-control-dark" autocomplete="email" placeholder="admin@example.com" />
+                <span asp-validation-for="Input.Email" class="text-danger-light"></span>
+            </div>
+
+            <div class="mb-form">
+                <label asp-for="Input.Password" class="form-label-dark">Password</label>
+                <input asp-for="Input.Password" type="password" class="form-control-dark" autocomplete="new-password" placeholder="••••••••" />
+                <span asp-validation-for="Input.Password" class="text-danger-light"></span>
+            </div>
+
+            <div class="mb-form">
+                <label asp-for="Input.ConfirmPassword" class="form-label-dark">Confirm Password</label>
+                <input asp-for="Input.ConfirmPassword" type="password" class="form-control-dark" autocomplete="new-password" placeholder="••••••••" />
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger-light"></span>
+            </div>
+
+            <div class="mb-form">
+                <label asp-for="Input.AdminKey" class="form-label-dark">Admin Invite Key</label>
+                <div class="key-input-wrapper">
+                    <span class="key-icon">🔑</span>
+                    <input asp-for="Input.AdminKey" type="password" class="form-control-dark with-icon" placeholder="Enter secret admin key" />
+                </div>
+                <span asp-validation-for="Input.AdminKey" class="text-danger-light"></span>
+            </div>
+
+            <button type="submit" class="btn-admin">Create Admin Account</button>
+        </form>
+
+        <a href="/" class="back-link">← Back to BookSwap</a>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
+</body>
+</html>

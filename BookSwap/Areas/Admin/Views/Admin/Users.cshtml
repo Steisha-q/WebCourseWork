@@ -1,0 +1,111 @@
+@using Microsoft.AspNetCore.Identity
+@model IEnumerable<IdentityUser>
+@{
+    ViewData["Title"] = "Users";
+    var bookCountMap  = (Dictionary<string, int>)ViewBag.BookCountMap;
+    var swapCountMap  = (Dictionary<string, int>)ViewBag.SwapCountMap;
+    var adminUserIds  = (HashSet<string>)ViewBag.AdminUserIds;
+}
+
+<div class="admin-table-wrapper">
+    <div class="admin-table-header">
+        <span class="admin-table-title">All Users (@Model.Count())</span>
+        <form method="get" class="filter-bar">
+            <input type="text" name="search" class="filter-input"
+                   placeholder="Search by email…" value="@ViewBag.Search" />
+            <button type="submit" class="btn-filter">Search</button>
+            @if (!string.IsNullOrWhiteSpace(ViewBag.Search as string))
+            {
+                <a href="/Admin/Admin/Users" class="btn-reset">Clear</a>
+            }
+        </form>
+    </div>
+
+    @if (Model.Any())
+    {
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Email confirmed</th>
+                    <th>Role</th>
+                    <th>Books</th>
+                    <th>Swaps sent</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var user in Model)
+                {
+                    var initial = user.Email?.Substring(0, 1).ToUpper() ?? "?";
+                    var isAdmin = adminUserIds.Contains(user.Id);
+                    var bookCount = bookCountMap.GetValueOrDefault(user.Id, 0);
+                    var swapCount = swapCountMap.GetValueOrDefault(user.Id, 0);
+                    var isSelf = user.Id == User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar"
+                                     style="@(isAdmin ? "background:linear-gradient(135deg,#7c3aed,#a78bfa)" : "")">
+                                    @initial
+                                </div>
+                                <div>
+                                    <div style="font-size:0.875rem;">@user.Email</div>
+                                    @if (isSelf)
+                                    {
+                                        <div style="font-size:0.7rem; color:#8b949e;">(you)</div>
+                                    }
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            @if (user.EmailConfirmed)
+                            {
+                                <span style="color:#4ade80;">✓ Confirmed</span>
+                            }
+                            else
+                            {
+                                <span style="color:#f59e0b;">⚠ Pending</span>
+                            }
+                        </td>
+                        <td>
+                            @if (isAdmin)
+                            {
+                                <span class="badge-status badge-admin">Admin</span>
+                            }
+                            else
+                            {
+                                <span style="color:#8b949e; font-size:0.8rem;">User</span>
+                            }
+                        </td>
+                        <td>@bookCount</td>
+                        <td>@swapCount</td>
+                        <td>
+                            @if (!isSelf)
+                            {
+                                <form method="post" action="/Admin/Admin/DeleteUser"
+                                      onsubmit="return confirm('Delete user @user.Email and all their data? This cannot be undone.');">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@user.Id" />
+                                    <button type="submit" class="btn-danger-outline">Delete</button>
+                                </form>
+                            }
+                            else
+                            {
+                                <span style="font-size:0.75rem; color:#8b949e;">—</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">👥</div>
+            <div>No users found</div>
+        </div>
+    }
+</div>

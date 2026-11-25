@@ -1,0 +1,119 @@
+@using BookSwap.Models
+@model IEnumerable<Book>
+@{
+    ViewData["Title"] = "Books";
+}
+
+<div class="admin-table-wrapper">
+    <div class="admin-table-header">
+        <span class="admin-table-title">All Books (@Model.Count())</span>
+        <form method="get" class="filter-bar">
+            <input type="text" name="search" class="filter-input"
+                   placeholder="Title or author…" value="@ViewBag.Search" style="width:200px;" />
+
+            <select name="genre" class="filter-input">
+                <option value="">All genres</option>
+                @foreach (var g in (IEnumerable<string>)ViewBag.Genres)
+                {
+                    <option value="@g" selected="@(ViewBag.Genre == g)">@g</option>
+                }
+            </select>
+
+            <select name="status" class="filter-input">
+                <option value="">All statuses</option>
+                <option value="available" selected="@(ViewBag.Status == "available")">Available</option>
+                <option value="hidden" selected="@(ViewBag.Status == "hidden")">Hidden</option>
+            </select>
+
+            <button type="submit" class="btn-filter">Filter</button>
+            @if (!string.IsNullOrWhiteSpace(ViewBag.Search as string)
+                 || !string.IsNullOrWhiteSpace(ViewBag.Genre as string)
+                 || !string.IsNullOrWhiteSpace(ViewBag.Status as string))
+            {
+                <a href="/Admin/Admin/Books" class="btn-reset">Clear</a>
+            }
+        </form>
+    </div>
+
+    @if (Model.Any())
+    {
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Genre</th>
+                    <th>Owner</th>
+                    <th>City</th>
+                    <th>Condition</th>
+                    <th>Status</th>
+                    <th>Added</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var book in Model)
+                {
+                    <tr>
+                        <td style="color:#8b949e;">#@book.Id</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:0.6rem;">
+                                @if (!string.IsNullOrEmpty(book.CoverImageUrl))
+                                {
+                                    <img src="@book.CoverImageUrl" alt="cover"
+                                         style="width:32px; height:42px; object-fit:cover; border-radius:4px; flex-shrink:0;" />
+                                }
+                                else
+                                {
+                                    <div style="width:32px; height:42px; background:rgba(255,255,255,0.05);
+                                         border-radius:4px; display:flex; align-items:center; justify-content:center;
+                                         font-size:1rem; flex-shrink:0;">📖</div>
+                                }
+                                <span class="truncate" title="@book.Title" style="max-width:150px;">@book.Title</span>
+                            </div>
+                        </td>
+                        <td><span class="truncate" title="@book.Author">@book.Author</span></td>
+                        <td style="color:#8b949e;">@book.Genre</td>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar" style="width:26px;height:26px;font-size:0.65rem;">
+                                    @(book.Owner?.Email?.Substring(0,1).ToUpper() ?? "?")
+                                </div>
+                                <span class="truncate" title="@book.Owner?.Email" style="max-width:120px;">@book.Owner?.Email</span>
+                            </div>
+                        </td>
+                        <td style="color:#8b949e;">@(book.City ?? "—")</td>
+                        <td style="color:#8b949e;">@book.Condition</td>
+                        <td>
+                            @if (book.IsAvailable)
+                            {
+                                <span class="badge-status badge-available">Available</span>
+                            }
+                            else
+                            {
+                                <span class="badge-status badge-hidden">Hidden</span>
+                            }
+                        </td>
+                        <td style="color:#8b949e; white-space:nowrap;">@book.CreatedAt.ToString("dd MMM yy")</td>
+                        <td>
+                            <form method="post" action="/Admin/Admin/DeleteBook"
+                                  onsubmit="return confirm('Delete book &quot;@book.Title.Replace("\"","\\\"")&quot;? All related swap requests will also be deleted.');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@book.Id" />
+                                <button type="submit" class="btn-danger-outline">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">📖</div>
+            <div>No books found</div>
+        </div>
+    }
+</div>

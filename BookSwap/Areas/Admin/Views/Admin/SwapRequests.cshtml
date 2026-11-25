@@ -1,0 +1,126 @@
+@using BookSwap.Models
+@model IEnumerable<SwapRequest>
+@{
+    ViewData["Title"] = "Swap Requests";
+    var statuses = new[] { "Pending", "Accepted", "Completed", "Declined", "Cancelled" };
+}
+
+<div class="admin-table-wrapper">
+    <div class="admin-table-header">
+        <span class="admin-table-title">All Swap Requests (@Model.Count())</span>
+        <form method="get" class="filter-bar">
+            <select name="status" class="filter-input">
+                <option value="">All statuses</option>
+                @foreach (var s in statuses)
+                {
+                    <option value="@s" selected="@(ViewBag.Status == s)">@s</option>
+                }
+            </select>
+            <button type="submit" class="btn-filter">Filter</button>
+            @if (!string.IsNullOrWhiteSpace(ViewBag.Status as string))
+            {
+                <a href="/Admin/Admin/SwapRequests" class="btn-reset">Clear</a>
+            }
+        </form>
+    </div>
+
+    <!-- Status summary pills -->
+    <div style="padding: 0.75rem 1.5rem; display:flex; gap:0.5rem; flex-wrap:wrap; border-bottom:1px solid rgba(255,255,255,0.08);">
+        @foreach (var s in statuses)
+        {
+            var count = Model.Count(r => r.Status == s);
+            <a href="/Admin/Admin/SwapRequests?status=@s"
+               style="text-decoration:none;">
+                <span class="badge-status badge-@s.ToLower()" style="font-size:0.75rem; cursor:pointer;">
+                    @s: @count
+                </span>
+            </a>
+        }
+    </div>
+
+    @if (Model.Any())
+    {
+        <table class="admin-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Sender</th>
+                    <th>Receiver</th>
+                    <th>Requested Book</th>
+                    <th>Offered Book</th>
+                    <th>Status</th>
+                    <th>Confirmations</th>
+                    <th>Date</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var swap in Model)
+                {
+                    <tr>
+                        <td style="color:#8b949e;">#@swap.Id</td>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar" style="width:26px;height:26px;font-size:0.65rem;">
+                                    @(swap.Sender?.Email?.Substring(0,1).ToUpper() ?? "?")
+                                </div>
+                                <span class="truncate" title="@swap.Sender?.Email">@swap.Sender?.Email</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar" style="width:26px;height:26px;font-size:0.65rem;background:linear-gradient(135deg,#059669,#3b82f6);">
+                                    @(swap.Receiver?.Email?.Substring(0,1).ToUpper() ?? "?")
+                                </div>
+                                <span class="truncate" title="@swap.Receiver?.Email">@swap.Receiver?.Email</span>
+                            </div>
+                        </td>
+                        <td><span class="truncate" title="@swap.RequestedBook?.Title">@swap.RequestedBook?.Title</span></td>
+                        <td><span class="truncate" title="@swap.OfferedBook?.Title">@swap.OfferedBook?.Title</span></td>
+                        <td>
+                            <span class="badge-status badge-@swap.Status.ToLower()">@swap.Status</span>
+                        </td>
+                        <td style="font-size:0.8rem;">
+                            @if (swap.Status == "Accepted" || swap.Status == "Completed")
+                            {
+                                <span style="color:@(swap.SenderConfirmed ? "#4ade80" : "#8b949e");">
+                                    @(swap.SenderConfirmed ? "✓" : "○") Sender
+                                </span>
+                                <br />
+                                <span style="color:@(swap.ReceiverConfirmed ? "#4ade80" : "#8b949e");">
+                                    @(swap.ReceiverConfirmed ? "✓" : "○") Receiver
+                                </span>
+                            }
+                            else
+                            {
+                                <span style="color:#8b949e;">—</span>
+                            }
+                        </td>
+                        <td style="color:#8b949e; white-space:nowrap;">
+                            @swap.CreatedAt.ToString("dd MMM yy")
+                            @if (swap.CompletedAt.HasValue)
+                            {
+                                <br/><span style="font-size:0.7rem;">Done: @swap.CompletedAt.Value.ToString("dd MMM yy")</span>
+                            }
+                        </td>
+                        <td>
+                            <form method="post" action="/Admin/Admin/DeleteSwap"
+                                  onsubmit="return confirm('Delete swap request #@swap.Id?');">
+                                @Html.AntiForgeryToken()
+                                <input type="hidden" name="id" value="@swap.Id" />
+                                <button type="submit" class="btn-danger-outline">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon">🔄</div>
+            <div>No swap requests found</div>
+        </div>
+    }
+</div>
